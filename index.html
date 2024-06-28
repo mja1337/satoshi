@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satoshi to Currency Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        input, select, button {
+            font-size: 1rem;
+            padding: 0.7rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: calc(100% - 1.4rem);
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,0.5);
+        }
+        button {
+            background-color: #f7931a; /* Bitcoin orange */
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #e17b0e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        #result {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Satoshi to Currency Converter</h1>
+        <input type="number" id="satoshiInput" placeholder="Enter number of satoshis">
+        <select id="currencySelect">
+            <option value="gbp">GBP (£)</option>
+            <option value="usd">USD ($)</option>
+        </select>
+        <button onclick="convertToCurrency()">Convert</button>
+        <p id="result">Conversion result will appear here</p>
+    </div>
+
+    <script>
+        async function convertToCurrency() {
+            const satoshis = document.getElementById('satoshiInput').value;
+            const currency = document.getElementById('currencySelect').value;
+            const resultElement = document.getElementById('result');
+
+            resultElement.textContent = 'Converting...';
+            resultElement.style.backgroundColor = '#f39c12';
+            resultElement.style.color = 'white';
+
+            try {
+                const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${currency}`);
+                const bitcoinPrice = response.data.bitcoin[currency];
+
+                const bitcoins = satoshis / 100000000;
+                const currencyValue = bitcoins * bitcoinPrice;
+
+                const currencySymbol = currency === 'gbp' ? '£' : '$';
+
+                resultElement.textContent = `${satoshis} satoshis = ${currencySymbol}${currencyValue.toFixed(2)} ${currency.toUpperCase()}`;
+                resultElement.style.backgroundColor = '#2ecc71';
+            } catch (error) {
+                resultElement.textContent = 'Error fetching data. Please try again.';
+                resultElement.style.backgroundColor = '#e74c3c';
+                console.error('Error:', error);
+            }
+
+            setTimeout(() => {
+                resultElement.style.backgroundColor = '#ecf0f1';
+                resultElement.style.color = '#2c3e50';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
